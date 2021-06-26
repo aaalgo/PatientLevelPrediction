@@ -85,13 +85,13 @@ randomSplitter <- function(population, test = 0.3, train = NULL, nfold = 3, seed
     stop("train must be between 0 and 1-test")
   }
 
-  if (length(table(population$outcomeCount)) <= 1 | sum(population$outcomeCount > 0) < 10) {
-    stop("Outcome only occurs in fewer than 10 people or only one class")
-  }
+  #if (length(table(population$outcomeCount)) <= 1 | sum(population$outcomeCount > 0) < 10) {
+  #  stop("Outcome only occurs in fewer than 10 people or only one class")
+  #}
 
-  if (floor(sum(population$outcomeCount > 0) * test/nfold) == 0) {
-    stop("Insufficient outcomes for choosen nfold value, please reduce")
-  }
+  #if (floor(sum(population$outcomeCount > 0) * test/nfold) == 0) {
+  #  stop("Insufficient outcomes for choosen nfold value, please reduce")
+  #}
   
 
   ParallelLogger::logInfo(paste0("Creating a ",
@@ -101,31 +101,31 @@ randomSplitter <- function(population, test = 0.3, train = NULL, nfold = 3, seed
                    "% train (into ",
                    nfold,
                    " folds) random stratified split by class"))
-  outPpl <- population$rowId[population$outcomeCount == 1]
-  nonPpl <- population$rowId[population$outcomeCount == 0]
+  outPpl <- population$rowId
+  #nonPpl <- population$rowId[population$outcomeCount == 0]
 
   # give random number to all and shuffle then assign to test/train/cv if using set.seed() then use
   # permutation <- stats::runif(length(nonPpl)+length(outPpl)) and nonPpl <-
   # nonPpl[order(permutation[1:length(nonPpl)])] and outPpl <-
   # outPpl[order(permutation[(1+length(nonPpl)):length(permutation)])]
-  nonPpl <- nonPpl[order(stats::runif(length(nonPpl)))]
+  #nonPpl <- nonPpl[order(stats::runif(length(nonPpl)))]
   outPpl <- outPpl[order(stats::runif(length(outPpl)))]
 
   # reset all to not included (index=0)
-  nonPpl.group <- rep(0, length(nonPpl))
+  #nonPpl.group <- rep(0, length(nonPpl))
   
   # set test set (index=-1)
-  test.ind <- 1:floor(length(nonPpl) * test)
-  nonPpl.group[test.ind] <- -1
+  #test.ind <- 1:floor(length(nonPpl) * test)
+  #nonPpl.group[test.ind] <- -1
   
   # set train set (index>0)
-  train.ind <- (floor(length(nonPpl) * test) + round(length(nonPpl) * (1-train-test)) + 1):length(nonPpl) 
-  reps <- floor(length(train.ind)/nfold)
-  leftOver <- length(train.ind)%%nfold
-  if (leftOver > 0)
-    nonPpl.group[train.ind] <- c(rep(1:nfold, each = reps), 1:leftOver)
-  if (leftOver == 0)
-    nonPpl.group[train.ind] <- rep(1:nfold, each = reps)
+  #train.ind <- (floor(length(nonPpl) * test) + round(length(nonPpl) * (1-train-test)) + 1):length(nonPpl) 
+  #reps <- floor(length(train.ind)/nfold)
+  #leftOver <- length(train.ind)%%nfold
+  #if (leftOver > 0)
+  #  nonPpl.group[train.ind] <- c(rep(1:nfold, each = reps), 1:leftOver)
+  #if (leftOver == 0)
+  #  nonPpl.group[train.ind] <- rep(1:nfold, each = reps)
     
   # same for outcome = 1
   outPpl.group <- rep(0, length(outPpl))
@@ -139,7 +139,9 @@ randomSplitter <- function(population, test = 0.3, train = NULL, nfold = 3, seed
   if (leftOver == 0)
     outPpl.group[train.ind] <- rep(1:nfold, each = reps)
 
-  split <- data.frame(rowId = c(nonPpl, outPpl), index = c(nonPpl.group, outPpl.group))
+  #split <- data.frame(rowId = c(nonPpl, outPpl), index = c(nonPpl.group, outPpl.group))
+
+  split <- data.frame(rowId = outPpl, index = outPpl.group)
   split <- split[order(-split$rowId), ]
 
   foldSizesTrain <- utils::tail(table(split$index), nfold)
@@ -295,9 +297,9 @@ subjectSplitter <- function(population, test = 0.3, train = NULL, nfold = 3, see
     stop("train must be between 0 and 1-test")
   }
   
-  if (length(table(population$outcomeCount)) <= 1 | sum(population$outcomeCount > 0) < 10) {
-    stop("Outcome only occurs in fewer than 10 people or only one class")
-  }
+  #if (length(table(population$outcomeCount)) <= 1 | sum(population$outcomeCount > 0) < 10) {
+  #  stop("Outcome only occurs in fewer than 10 people or only one class")
+  #}
   
   if (floor(sum(population$outcomeCount > 0) * test/nfold) == 0) {
     stop("Insufficient outcomes for choosen nfold value, please reduce")

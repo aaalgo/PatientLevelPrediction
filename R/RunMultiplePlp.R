@@ -205,7 +205,7 @@ runPlpAnalyses <- function(connectionDetails,
               file.path(outputFolder,'settings.csv'), 
               row.names = F )
   }
-  
+
   for(i in 1:nrow(referenceTable)){
     
     plpDataFolder <- referenceTable$plpDataFolder[i]
@@ -237,6 +237,12 @@ runPlpAnalyses <- function(connectionDetails,
     }
     
     if(!file.exists(referenceTable$studyPopFile[i])){#studyPop[i])){
+
+      indexes <- tryCatch(personSplitter(plpData$cohorts, test=testFraction, train = NULL, nfold=nfold, seed=splitSeed),
+                          finally= ParallelLogger::logTrace('Done.'))
+    	plpData$cohorts$globalIndexes <- indexes$index
+      
+
       ParallelLogger::logTrace(paste0('Setting population settings for setting ', i ))
       # get pop and save to referenceTable$popFile
       popSettings <- modelAnalysisList$populationSettings[[referenceTable$populationSettingId[i]]]
@@ -245,6 +251,7 @@ runPlpAnalyses <- function(connectionDetails,
       population <- tryCatch(do.call(createStudyPopulation, popSettings),
                finally= ParallelLogger::logTrace('Done pop.'), 
                error= function(cond){ParallelLogger::logTrace(paste0('Error with pop:',cond));return(NULL)})
+
       if(!is.null(population)){
         ParallelLogger::logTrace(paste0('Saving population for setting ', i ))
         saveRDS(population, referenceTable$studyPopFile[i])#studyPop[i])
@@ -268,9 +275,11 @@ runPlpAnalyses <- function(connectionDetails,
       runPlpSettings$savePlpResult <- T
       runPlpSettings$savePlpPlots <- F
       runPlpSettings$saveEvaluation <- F
-      result <- tryCatch(do.call(runPlp, runPlpSettings),
-                             finally= ParallelLogger::logTrace('Done runPlp.'), 
-                             error= function(cond){ParallelLogger::logTrace(paste0('Error with runPlp:',cond));return(NULL)})
+      runPlpSettings$indexes <- population %>% dplyr::select(rowId, globalIndexes) %>% dplyr::rename(indexes = globalIndexes)
+      result <- do.call(runPlp, runPlpSettings)
+      #result <- tryCatch(do.call(runPlp, runPlpSettings),
+      #                       finally= ParallelLogger::logTrace('Done runPlp.'), 
+      #                       error= function(cond){ParallelLogger::logTrace(paste0('Error with runPlp:',cond));return(NULL)})
     }
     
   }

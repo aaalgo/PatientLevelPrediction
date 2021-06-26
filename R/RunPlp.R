@@ -215,7 +215,7 @@ runPlp <- function(population, plpData,  minCovariateFraction = 0.001, normalize
   ParallelLogger::logDebug(paste0('testSplit: ', testSplit))
   checkInStringVector(testSplit, c('person','time', 'stratified','subject'))
   ParallelLogger::logDebug(paste0('outcomeCount: ', sum(population[,'outcomeCount']>0)))
-  checkHigherEqual(sum(population[,'outcomeCount']>0), 25)
+  checkHigherEqual(sum(population[,'outcomeCount']>0), 0)
   ParallelLogger::logDebug(paste0('plpData class: ', class(plpData)))
   checkIsClass(plpData, c('plpData'))
   ParallelLogger::logDebug(paste0('testfraction: ', testFraction))
@@ -235,6 +235,7 @@ runPlp <- function(population, plpData,  minCovariateFraction = 0.001, normalize
   
   # construct the settings for the model pipeline
   if(is.null(indexes)){
+    stop("we are using global indexes and splitting should not happen here.")
     if(testSplit=='stratified'){
       ParallelLogger::logTrace('Dataset stratified split started')
       if(is.null(splitSeed)){ #keep record of splitSeed

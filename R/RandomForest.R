@@ -119,6 +119,7 @@ fitRandomForest <- function(population, plpData, param, search='grid', quiet=F,
   #x <- toSparsePython2(plpData,population, map=NULL)
   prediction <- population
   x <- toSparseM(plpData,population,map=NULL, temporal = F)
+  x$data[is.na(x$data)] <- 0
 
   ParallelLogger::logInfo('Sourcing python code')
   reticulate::source_python(system.file(package='PatientLevelPrediction','python','randomForestFunctions.py'), envir = e)

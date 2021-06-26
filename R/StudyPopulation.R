@@ -394,7 +394,7 @@ createStudyPopulation <- function(plpData,
                   daysToEvent = .data$first) %>%
     dplyr::select(.data$rowId, .data$subjectId, .data$cohortId, .data$cohortStartDate, .data$daysFromObsStart,
                   .data$daysToCohortEnd, .data$daysToObsEnd, .data$ageYear, .data$gender,
-                  .data$outcomeCount, .data$timeAtRisk, .data$daysToEvent, .data$survivalTime)
+                  .data$outcomeCount, .data$timeAtRisk, .data$daysToEvent, .data$survivalTime, .data$globalIndexes)
 
     # check outcome still there
     if(sum(!is.na(population$daysToEvent))==0){
